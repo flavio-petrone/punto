@@ -1,0 +1,484 @@
+/* Punto: the presentation has its own art direction; the workspace stays focused. */
+body {
+  overflow-x: clip;
+}
+.site-header {
+  height: 92px;
+  position: relative;
+  z-index: 3;
+}
+.site-header .brand {
+  font-size: 38px;
+}
+.site-header nav {
+  font-size: 11px;
+  gap: 38px;
+}
+.site-header .btn {
+  border-radius: 100px;
+  padding: 12px 21px;
+}
+.hero {
+  position: relative;
+  grid-template-columns: 1fr 1.08fr;
+  gap: 0;
+  padding: 12px 4.5% 0;
+  min-height: 0;
+  isolation: isolate;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  width: 65%;
+  height: 87%;
+  top: -80px;
+  right: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse, #dce5cd99, #f5f4ee00 67%);
+  pointer-events: none;
+}
+.hero-copy {
+  z-index: 1;
+  padding: 80px 0 40px;
+  align-self: center;
+}
+.hero .eyebrow {
+  font-size: 9px;
+}
+.hero h1 {
+  font-size: clamp(72px, 7.1vw, 122px);
+  line-height: 0.97;
+  letter-spacing: -0.075em;
+  margin: 32px -65px 32px 0;
+  position: relative;
+}
+.hero h1 em {
+  white-space: nowrap;
+}
+.hero h1 .title-dot {
+  font-size: 0.16em;
+  margin-left: 9px;
+  color: #698b46;
+}
+.hero-intro {
+  font-size: clamp(18px, 1.5vw, 22px);
+  line-height: 1.5;
+  color: var(--ink);
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  margin-bottom: 13px;
+}
+.hero-detail {
+  font-size: 13px;
+  max-width: 325px;
+  color: #6b796f;
+  line-height: 1.8;
+}
+.hero-actions {
+  gap: 30px;
+  margin-top: 25px;
+}
+.hero-actions .btn {
+  border-radius: 100px;
+  min-height: 52px;
+  font-size: 12px;
+  padding: 15px 25px;
+}
+.hero-note {
+  margin-top: 40px;
+}
+.mini-mark {
+  background: transparent;
+  border: 1px solid #cbd4c2;
+  font-size: 12px;
+  width: 36px;
+  height: 36px;
+}
+.hero-note p {
+  font-size: 9px;
+}
+.hero-art {
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+  min-height: 650px;
+  align-self: stretch;
+  margin: 0 -3vw 0 -1vw;
+}
+.scene-caption {
+  padding: 20px 3vw 0 4vw;
+  top: 5px;
+}
+.scene-caption .eyebrow {
+  font-size: 8px;
+}
+.scene-caption .icon-btn {
+  width: 44px;
+  height: 44px;
+  background: #f5f4ee88;
+  backdrop-filter: blur(12px);
+  border-color: #c9d4be;
+}
+#scene {
+  min-height: 540px;
+}
+#scene canvas {
+  pointer-events: auto;
+}
+.scene-tag {
+  position: absolute;
+  bottom: 95px;
+  right: 7%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border: 1px solid #ffffffc9;
+  background: #fafbf4c9;
+  backdrop-filter: blur(16px);
+  border-radius: 100px;
+  box-shadow: 0 15px 40px #153b3310;
+  font-size: 10px;
+  letter-spacing: -0.015em;
+}
+.scene-tag > span:last-child {
+  margin-left: 17px;
+  font-size: 14px;
+}
+.tag-dot {
+  width: 6px;
+  height: 6px;
+  background: #688648;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #e3edda;
+}
+.scene-bottom {
+  min-height: 60px;
+  padding: 0 3vw 20px;
+  gap: 20px;
+  align-items: center;
+}
+.scene-index {
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.scene-index > span {
+  color: #89967b;
+  font-size: 10px;
+  font-weight: 400;
+}
+.scene-bottom p {
+  max-width: 210px;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.drag-hint {
+  font-size: 8px;
+  margin-left: auto;
+}
+.hero-journey {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+  margin-top: 12px;
+}
+.journey-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.journey-label > span:last-child {
+  color: var(--muted);
+  font-size: 10px;
+}
+.phases {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+}
+.phases button {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  text-align: left;
+  padding: 21px 20px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  transition:
+    background 0.35s,
+    color 0.35s,
+    border-color 0.35s;
+}
+.phases button:hover {
+  background: #e6ecdd;
+  border-color: #d5dfc8;
+}
+.phases button.active {
+  box-shadow: none;
+  color: var(--paper);
+  background: var(--forest);
+  border-color: var(--forest);
+}
+.phases small {
+  font-size: 9px;
+  font-weight: 400;
+  margin: 3px 0 0;
+}
+.phases button > span {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.phases em {
+  display: block;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 400;
+  opacity: 0.65;
+  letter-spacing: 0;
+  margin-top: 7px;
+}
+.phases b {
+  margin-left: auto;
+  font-size: 17px;
+  font-weight: 400;
+}
+.phases button.active b {
+  color: var(--lime);
+}
+.principles {
+  margin-top: 30px;
+  border-top: none;
+  padding-top: 15px;
+  padding-bottom: 28px;
+}
+.principles > span {
+  font-size: 10px;
+}
+.method {
+  padding-top: 110px;
+  padding-bottom: 100px;
+}
+.method-grid article {
+  transition: border-color 0.3s;
+}
+.method-grid article:hover {
+  border-color: #668344;
+}
+.mini-request,
+.mini-flow,
+.mini-approved {
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.5s;
+}
+.method-grid article:hover > div {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 24px #163c3409;
+}
+.workspace-section {
+  background: #dfe8d5;
+}
+.workspace-preview {
+  transform-origin: center center;
+}
+.closing {
+  background: #103a2e;
+}
+.closing::after {
+  border-width: 35px;
+  border-color: #92b36819;
+  width: 340px;
+  height: 340px;
+  border-radius: 90px;
+  transform: rotate(-24deg);
+  box-shadow:
+    70px 30px 0 0 #cde68a13,
+    140px 60px 0 0 #92b3680c;
+}
+.closing h2 > span {
+  transform: rotate(-8deg);
+}
+@media (min-width: 1700px) {
+  .hero {
+    min-height: 0;
+  }
+  .hero-art {
+    min-height: 730px;
+  }
+  .hero-copy {
+    padding-top: 85px;
+    padding-bottom: 55px;
+  }
+}
+@media (max-width: 1100px) {
+  .hero h1 {
+    font-size: clamp(66px, 7.6vw, 92px);
+  }
+  .hero-copy {
+    padding-top: 72px;
+  }
+  .hero-art {
+    min-height: 650px;
+    margin-right: -3vw;
+  }
+  .scene-bottom {
+    gap: 12px;
+  }
+  .drag-hint {
+    display: none;
+  }
+  .phases button {
+    padding: 19px 12px;
+    gap: 10px;
+  }
+  .phases button > span {
+    font-size: 12px;
+  }
+  .phases em {
+    font-size: 8px;
+  }
+}
+@media (max-width: 760px) {
+  .site-header {
+    height: 76px;
+  }
+  .site-header .brand {
+    font-size: 31px;
+  }
+  .site-header .btn {
+    padding: 10px 16px;
+    font-size: 10px;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 0;
+    gap: 0;
+  }
+  .hero::before {
+    top: 400px;
+    width: 100%;
+    height: 500px;
+    right: 0;
+  }
+  .hero-copy {
+    padding: 46px 0 0;
+  }
+  .hero h1 {
+    font-size: clamp(50px, 14.4vw, 86px);
+    margin: 25px 0;
+  }
+  .hero-intro {
+    font-size: 19px;
+  }
+  .hero-detail {
+    font-size: 12px;
+    max-width: 340px;
+  }
+  .hero-actions {
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 23px;
+  }
+  .hero-actions .btn {
+    min-height: 48px;
+    padding: 13px 20px;
+    font-size: 11px;
+  }
+  .hero-actions .text-link {
+    font-size: 11px;
+  }
+  .hero-note {
+    margin-top: 25px;
+  }
+  .hero-art {
+    min-height: 450px;
+    margin: 20px -4.5vw 0;
+  }
+  #scene {
+    min-height: 395px;
+  }
+  .scene-caption {
+    padding: 0 7%;
+    top: 10px;
+  }
+  .scene-caption .eyebrow {
+    font-size: 7px;
+  }
+  .scene-tag {
+    right: 8%;
+    bottom: 75px;
+    padding: 12px 16px;
+    font-size: 9px;
+  }
+  .scene-bottom {
+    padding: 0 7% 16px;
+    gap: 16px;
+    min-height: 55px;
+  }
+  .scene-bottom p {
+    max-width: none;
+    font-size: 9px;
+  }
+  .scene-index {
+    font-size: 16px;
+  }
+  .hero-journey {
+    margin-top: 0;
+    padding-top: 19px;
+  }
+  .journey-label .eyebrow {
+    font-size: 8px;
+  }
+  .journey-label > span:last-child {
+    display: none;
+  }
+  .phases {
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .phases button {
+    padding: 17px 12px;
+    gap: 10px;
+  }
+  .phases button > span {
+    font-size: 12px;
+  }
+  .phases em {
+    font-size: 8px;
+    line-height: 1.5;
+  }
+  .phases b {
+    font-size: 14px;
+  }
+  .principles {
+    margin-top: 15px;
+    padding-top: 20px;
+  }
+  .method {
+    padding-top: 65px;
+    padding-bottom: 65px;
+  }
+  .closing::after {
+    width: 210px;
+    height: 210px;
+    border-width: 22px;
+    border-radius: 55px;
+    right: -60px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .method-grid article:hover > div {
+    transform: none;
+  }
+}

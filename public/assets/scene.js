@@ -1,38 +1,90 @@
 import * as THREE from './vendor/three.module.min.js';
-const host = document.querySelector('#scene'),
-  motion = document.querySelector('#motion-toggle'),
-  reduce = matchMedia('(prefers-reduced-motion: reduce)');
-let paused = reduce.matches,
-  visible = true,
-  phase = 0,
-  renderer,
-  dirty = true;
-const captions = [
-  'Un’idea entra. Il progetto prende forma.',
-  'Persone e attività, nella stessa direzione.',
-  'Un confronto chiaro. Una versione alla volta.',
-  'L’ultimo sì. E tutto torna al suo posto.',
+
+const host = document.querySelector('#scene');
+const motion = document.querySelector('#motion-toggle');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+const phaseButtons = [...document.querySelectorAll('[data-phase]')];
+const phases = [
+  {
+    caption: 'Un’idea entra. Il progetto prende forma.',
+    status: 'Un nuovo inizio.',
+    badge: 'RICHIESTA RICEVUTA',
+    title: 'Una nuova idea.',
+    note: 'Ogni progetto parte da un ascolto.',
+    label: '01 / Il brief',
+    color: '#f2c7ac',
+  },
+  {
+    caption: 'Persone e attività, nella stessa direzione.',
+    status: 'Il team è in movimento.',
+    badge: 'PROGETTO IN CORSO',
+    title: 'Atelier Nove',
+    note: 'Persone, attività e tempi. Collegati.',
+    label: '02 / Il progetto',
+    color: '#d9f391',
+  },
+  {
+    caption: 'Un confronto chiaro. Una versione alla volta.',
+    status: 'Il tuo punto di vista conta.',
+    badge: 'IN ATTESA DEL TUO SÌ',
+    title: 'La prima versione.',
+    note: 'Una consegna. Un confronto chiaro.',
+    label: '03 / La revisione',
+    color: '#cbdfe9',
+  },
+  {
+    caption: 'L’ultimo sì. E tutto torna al suo posto.',
+    status: 'Ci siamo. Approvato.',
+    badge: 'CONSEGNA APPROVATA',
+    title: 'Proprio così.',
+    note: 'Il cerchio si chiude. Il lavoro resta.',
+    label: '04 / La consegna',
+    color: '#d9f391',
+  },
 ];
-const buttons = [...document.querySelectorAll('[data-phase]')];
-buttons.forEach((button) =>
-  button.addEventListener('click', () => {
-    phase = Number(button.dataset.phase);
-    dirty = true;
-    buttons.forEach((b, i) => {
-      b.classList.toggle('active', i === phase);
-      b.setAttribute('aria-pressed', String(i === phase));
-    });
-    document.querySelector('#phase-caption').textContent = captions[phase];
-  }),
-);
+let phase = 0;
+let paused = reduce.matches;
+let visible = true;
+let contextLost = false;
+let frame = null;
+let invalidate = () => {};
+let updateCard = () => {};
+
+function selectPhase(next, focus = false) {
+  phase = (next + phases.length) % phases.length;
+  phaseButtons.forEach((button, index) => {
+    button.classList.toggle('active', index === phase);
+    button.setAttribute('aria-pressed', String(index === phase));
+  });
+  document.querySelector('#phase-caption').textContent = phases[phase].caption;
+  document.querySelector('#scene-status').textContent = phases[phase].status;
+  document.querySelector('.scene-index').firstChild.textContent = `0${phase + 1}`;
+  if (focus) phaseButtons[phase].focus();
+  updateCard();
+  invalidate();
+}
+phaseButtons.forEach((button, index) => {
+  button.addEventListener('click', () => selectPhase(index));
+  button.addEventListener('keydown', (event) => {
+    const offsets = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+    if (event.key in offsets) {
+      event.preventDefault();
+      selectPhase(index + offsets[event.key], true);
+    } else if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      selectPhase(event.key === 'Home' ? 0 : 3, true);
+    }
+  });
+});
 function syncPause() {
-  dirty = true;
   motion.textContent = paused ? '▷' : 'Ⅱ';
   motion.setAttribute('aria-pressed', String(paused));
   motion.setAttribute(
     'aria-label',
-    paused ? 'Avvia il movimento 3D' : 'Metti in pausa il movimento 3D',
+    paused ? 'Avvia le animazioni' : 'Metti in pausa le animazioni',
   );
+  document.dispatchEvent(new CustomEvent('punto:motion', { detail: { paused } }));
+  invalidate();
 }
 motion.addEventListener('click', () => {
   paused = !paused;
@@ -43,8 +95,9 @@ reduce.addEventListener('change', () => {
   syncPause();
 });
 syncPause();
+
 try {
-  renderer = new THREE.WebGLRenderer({
+  const renderer = new THREE.WebGLRenderer({
     antialias: true,
     alpha: true,
     powerPreference: 'low-power',
@@ -55,209 +108,331 @@ try {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.25;
+  renderer.toneMappingExposure = 1.1;
   host.appendChild(renderer.domElement);
-  host.classList.add('webgl-ready');
-  const scene = new THREE.Scene(),
-    camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-  camera.position.set(7, 5.3, 10);
-  camera.lookAt(0, 0.4, 0);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x748667, 3));
-  const key = new THREE.DirectionalLight(0xfff9df, 5);
-  key.position.set(-4, 8, 5);
+  renderer.domElement.setAttribute('aria-hidden', 'true');
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+  camera.position.set(6, 4.5, 11.5);
+  camera.lookAt(0, 0.15, 0);
+
+  // A small procedural photo studio supplies real reflections, without HDR downloads.
+  const studio = new THREE.Scene();
+  studio.background = new THREE.Color('#d8dfce');
+  const studioRoom = new THREE.Mesh(
+    new THREE.BoxGeometry(18, 14, 18),
+    new THREE.MeshBasicMaterial({ color: '#758375', side: THREE.BackSide }),
+  );
+  studio.add(studioRoom);
+  [
+    { position: [-5, 4, 3], scale: [4, 7, 1], color: 0xfff8e4 },
+    { position: [6, 3, -2], scale: [3, 8, 1], color: 0xedffe7 },
+    { position: [0, 6, 0], scale: [7, 3, 1], color: 0xffffff },
+  ].forEach(({ position, scale, color }) => {
+    const panel = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide }),
+    );
+    panel.position.set(...position);
+    panel.scale.set(...scale);
+    panel.lookAt(0, 0, 0);
+    studio.add(panel);
+  });
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const environment = pmrem.fromScene(studio, 0);
+  scene.environment = environment.texture;
+  studio.traverse((object) => {
+    object.geometry?.dispose();
+    object.material?.dispose();
+  });
+  pmrem.dispose();
+  scene.add(new THREE.HemisphereLight(0xf9ffed, 0x7b896d, 2));
+  const key = new THREE.DirectionalLight(0xfff4df, 4.2);
+  key.position.set(-3, 8, 6);
   key.castShadow = true;
   key.shadow.mapSize.set(1024, 1024);
-  key.shadow.camera.left = -6;
-  key.shadow.camera.right = 6;
-  key.shadow.camera.top = 7;
-  key.shadow.camera.bottom = -6;
-  key.shadow.normalBias = 0.04;
+  Object.assign(key.shadow.camera, { left: -6, right: 6, top: 7, bottom: -6 });
+  key.shadow.normalBias = 0.035;
+  key.shadow.bias = -0.0001;
+  key.shadow.radius = 4;
   scene.add(key);
-  const fill = new THREE.DirectionalLight(0xc7efda, 3);
-  fill.position.set(6, 2, -5);
-  scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xcfeac0, 2.5);
+  rim.position.set(5, 3, -5);
+  scene.add(rim);
   const group = new THREE.Group();
   scene.add(group);
-  group.rotation.y = -0.25;
-  function roundRect(x, y, w, h, r) {
+  group.rotation.set(0.08, -0.24, -0.1);
+
+  function rounded(x, y, width, height, radius) {
     const s = new THREE.Shape();
-    s.moveTo(x + r, y);
-    s.lineTo(x + w - r, y);
-    s.quadraticCurveTo(x + w, y, x + w, y + r);
-    s.lineTo(x + w, y + h - r);
-    s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    s.lineTo(x + r, y + h);
-    s.quadraticCurveTo(x, y + h, x, y + h - r);
-    s.lineTo(x, y + r);
-    s.quadraticCurveTo(x, y, x + r, y);
+    s.moveTo(x + radius, y);
+    s.lineTo(x + width - radius, y);
+    s.quadraticCurveTo(x + width, y, x + width, y + radius);
+    s.lineTo(x + width, y + height - radius);
+    s.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    s.lineTo(x + radius, y + height);
+    s.quadraticCurveTo(x, y + height, x, y + height - radius);
+    s.lineTo(x, y + radius);
+    s.quadraticCurveTo(x, y, x + radius, y);
     return s;
   }
-  function portal(color, z, rotation) {
-    const shape = roundRect(-1.72, -1.95, 3.44, 3.9, 0.72),
-      hole = roundRect(-1.18, -1.42, 2.36, 2.84, 0.37);
-    shape.holes.push(hole);
-    const geo = new THREE.ExtrudeGeometry(shape, {
-      depth: 0.35,
-      bevelEnabled: true,
-      bevelSegments: 5,
-      steps: 1,
-      bevelSize: 0.12,
-      bevelThickness: 0.12,
-      curveSegments: 20,
-    });
-    geo.center();
+  const shape = rounded(-1.6, -1.85, 3.2, 3.7, 0.78);
+  shape.holes.push(rounded(-1.05, -1.29, 2.1, 2.58, 0.4));
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: 0.38,
+    bevelEnabled: true,
+    bevelSegments: 6,
+    bevelSize: 0.16,
+    bevelThickness: 0.15,
+    curveSegments: 24,
+    steps: 1,
+  });
+  geometry.center();
+  const portals = [0x214d3b, 0xc9e785, 0x173f33].map((color, i) => {
     const mesh = new THREE.Mesh(
-      geo,
-      new THREE.MeshStandardMaterial({ color, roughness: 0.29, metalness: 0.22 }),
+      geometry,
+      new THREE.MeshPhysicalMaterial({
+        color,
+        roughness: 0.24,
+        metalness: 0.14,
+        clearcoat: 0.5,
+        clearcoatRoughness: 0.25,
+        envMapIntensity: 1.15,
+      }),
     );
-    mesh.position.set(0, 0.45, z);
-    mesh.rotation.z = rotation;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+    mesh.position.set((i - 1) * 0.34, 0.5, (i - 1) * 1.15);
+    mesh.rotation.z = -0.22 + i * 0.06;
     group.add(mesh);
     return mesh;
-  }
-  const portals = [
-    portal(0x204e3f, -0.82, -0.12),
-    portal(0xbdd979, 0, -0.12),
-    portal(0x285443, 0.82, -0.12),
-  ];
-  function cardTexture() {
-    const c = document.createElement('canvas');
-    c.width = 768;
-    c.height = 512;
-    const ctx = c.getContext('2d');
+  });
+
+  const cardCanvas = document.createElement('canvas');
+  cardCanvas.width = 1024;
+  cardCanvas.height = 660;
+  const ctx = cardCanvas.getContext('2d');
+  const cardTexture = new THREE.CanvasTexture(cardCanvas);
+  cardTexture.colorSpace = THREE.SRGBColorSpace;
+  cardTexture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  updateCard = () => {
+    const data = phases[phase];
     ctx.fillStyle = '#fbfcf5';
-    ctx.fillRect(0, 0, 768, 512);
-    ctx.fillStyle = '#173d33';
-    ctx.font = 'bold 40px Arial';
-    ctx.fillText('punto.', 45, 65);
-    ctx.fillStyle = '#859178';
-    ctx.font = '19px Arial';
-    ctx.fillText('IL PROGETTO PRENDE FORMA', 45, 115);
-    ctx.fillStyle = '#173d33';
-    ctx.font = 'bold 46px Arial';
-    ctx.fillText('Atelier Nove', 45, 205);
-    ctx.fillStyle = '#74826f';
-    ctx.font = '24px Arial';
-    ctx.fillText('Un nuovo spazio per il brand.', 45, 253);
-    ctx.fillStyle = '#e3ead9';
-    ctx.fillRect(45, 306, 678, 5);
-    ctx.fillStyle = '#cee795';
+    ctx.fillRect(0, 0, 1024, 660);
+    ctx.fillStyle = '#153b33';
+    ctx.font = '800 46px Manrope, Arial';
+    ctx.fillText('punto.', 65, 85);
+    ctx.font = '400 23px Manrope, Arial';
+    ctx.fillStyle = '#7a897a';
+    ctx.fillText('ATELIER NOVE / PT—001', 65, 142);
+    ctx.font = '600 60px Manrope, Arial';
+    ctx.fillStyle = '#153b33';
+    ctx.fillText(data.title, 65, 280);
+    ctx.font = '400 27px Manrope, Arial';
+    ctx.fillStyle = '#72806c';
+    ctx.fillText(data.note, 65, 343);
+    ctx.fillStyle = '#e0e7d8';
+    ctx.fillRect(65, 400, 890, 2);
+    ctx.fillStyle = data.color;
     ctx.beginPath();
-    ctx.roundRect(45, 354, 229, 63, 31);
+    ctx.roundRect(65, 461, 565, 69, 34);
     ctx.fill();
     ctx.fillStyle = '#173d33';
-    ctx.font = 'bold 22px Arial';
-    ctx.fillText('●  In movimento', 65, 394);
-    ctx.font = '20px Arial';
-    ctx.fillText('PT—001', 610, 394);
-    const texture = new THREE.CanvasTexture(c);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-  }
-  const cardGroup = new THREE.Group();
-  group.add(cardGroup);
-  cardGroup.position.set(-0.05, 0.4, 1.45);
-  const body = new THREE.Mesh(
-    new THREE.ExtrudeGeometry(roundRect(-1.55, -1.03, 3.1, 2.06, 0.13), {
-      depth: 0.055,
+    ctx.font = '600 23px Manrope, Arial';
+    ctx.fillText(data.badge, 90, 505);
+    ctx.font = '400 24px Manrope, Arial';
+    ctx.fillStyle = '#788570';
+    ctx.fillText('ESEMPIO', 818, 505);
+    ctx.fillStyle = '#9aa591';
+    ctx.font = '400 22px Manrope, Arial';
+    ctx.fillText(data.label, 65, 595);
+    cardTexture.needsUpdate = true;
+  };
+  updateCard();
+  document.fonts.ready.then(() => {
+    updateCard();
+    invalidate();
+  });
+  const card = new THREE.Group();
+  group.add(card);
+  const cardBody = new THREE.Mesh(
+    new THREE.ExtrudeGeometry(rounded(-1.5, -0.97, 3, 1.94, 0.11), {
+      depth: 0.045,
       bevelEnabled: true,
+      bevelSize: 0.045,
+      bevelThickness: 0.026,
       bevelSegments: 3,
-      bevelSize: 0.035,
-      bevelThickness: 0.025,
-      curveSegments: 10,
+      curveSegments: 12,
     }),
-    new THREE.MeshStandardMaterial({ color: 0xfafbf4, roughness: 0.45 }),
+    new THREE.MeshPhysicalMaterial({ color: 0xfafcf5, roughness: 0.4, clearcoat: 0.15 }),
   );
-  body.castShadow = true;
-  cardGroup.add(body);
-  const face = new THREE.Mesh(
-    new THREE.PlaneGeometry(3.04, 2.01),
-    new THREE.MeshBasicMaterial({ map: cardTexture() }),
+  cardBody.castShadow = true;
+  card.add(cardBody);
+  const cardFace = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.94, 1.895),
+    new THREE.MeshBasicMaterial({ map: cardTexture }),
   );
-  face.position.z = 0.09;
-  cardGroup.add(face);
-  const orb = new THREE.Mesh(
-    new THREE.SphereGeometry(0.36, 40, 24),
-    new THREE.MeshStandardMaterial({ color: 0xebc49a, roughness: 0.21, metalness: 0.26 }),
-  );
-  orb.position.set(2, 1.8, 1.5);
+  cardFace.position.z = 0.078;
+  card.add(cardFace);
+  card.position.set(0.16, 0.3, 2.05);
+  card.rotation.set(0.01, -0.1, -0.06);
+
+  const chrome = new THREE.MeshPhysicalMaterial({
+    color: 0xdcd9ba,
+    metalness: 1,
+    roughness: 0.14,
+    envMapIntensity: 1.3,
+  });
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.4, 48, 32), chrome);
   orb.castShadow = true;
+  orb.position.set(2.1, 1.55, 0.8);
   group.add(orb);
-  const small = new THREE.Mesh(
-    new THREE.TorusGeometry(0.33, 0.09, 16, 64),
-    new THREE.MeshStandardMaterial({ color: 0xb0cc68, metalness: 0.4, roughness: 0.23 }),
-  );
-  small.position.set(-2, -0.4, 1.8);
-  small.rotation.x = 0.45;
-  group.add(small);
-  const floor = new THREE.Mesh(
+  const orbit = new THREE.Mesh(new THREE.TorusGeometry(0.31, 0.055, 16, 64), chrome);
+  orbit.position.set(-1.9, -0.65, 1.8);
+  orbit.rotation.set(0.6, 0.3, 0.2);
+  group.add(orbit);
+  const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(200, 200),
-    new THREE.ShadowMaterial({ opacity: 0.13 }),
+    new THREE.ShadowMaterial({ opacity: 0.075 }),
   );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -2.2;
-  floor.receiveShadow = true;
-  scene.add(floor);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -2.12;
+  ground.receiveShadow = true;
+  scene.add(ground);
+  // A soft contact shadow anchors the floating sculpture without post-processing.
+  const shadowCanvas = document.createElement('canvas');
+  shadowCanvas.width = shadowCanvas.height = 128;
+  const shadowCtx = shadowCanvas.getContext('2d');
+  const gradient = shadowCtx.createRadialGradient(64, 64, 2, 64, 64, 64);
+  gradient.addColorStop(0, '#153b3350');
+  gradient.addColorStop(1, '#153b3300');
+  shadowCtx.fillStyle = gradient;
+  shadowCtx.fillRect(0, 0, 128, 128);
+  const contact = new THREE.Mesh(
+    new THREE.PlaneGeometry(6.5, 5),
+    new THREE.MeshBasicMaterial({
+      map: new THREE.CanvasTexture(shadowCanvas),
+      transparent: true,
+      depthWrite: false,
+    }),
+  );
+  contact.rotation.x = -Math.PI / 2;
+  contact.position.y = -2.1;
+  scene.add(contact);
+
   const pointer = { x: 0, y: 0 };
-  host.addEventListener('pointermove', (e) => {
-    const b = host.getBoundingClientRect();
-    pointer.x = (e.clientX - b.left) / b.width - 0.5;
-    pointer.y = (e.clientY - b.top) / b.height - 0.5;
+  let scroll = 0;
+  let elapsed = 0;
+  let last = performance.now();
+  const poses = [
+    { turn: -0.26, spread: 1.15, lift: 0.4, cardX: 0.1, cardY: 0.18, cardZ: 2.05, twist: -0.2 },
+    { turn: 0.03, spread: 0.9, lift: 0.36, cardX: -0.1, cardY: 0.42, cardZ: 1.95, twist: -0.06 },
+    { turn: -0.45, spread: 1.45, lift: 0.45, cardX: 0.2, cardY: 0.25, cardZ: 2.3, twist: 0.07 },
+    { turn: 0.12, spread: 0.64, lift: 0.15, cardX: 0.06, cardY: 0.1, cardZ: 1.48, twist: 0 },
+  ];
+  const lerp = THREE.MathUtils.lerp;
+  function stop() {
+    if (frame !== null) cancelAnimationFrame(frame);
+    frame = null;
+  }
+  function draw(now) {
+    frame = null;
+    if (!visible || document.hidden || contextLost) return;
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    if (!paused) elapsed += dt;
+    const smoothing = paused ? 1 : 1 - Math.exp(-dt * 4.4);
+    const p = poses[phase];
+    const wave = paused ? 0 : Math.sin(elapsed * 0.6);
+    group.rotation.y = lerp(
+      group.rotation.y,
+      p.turn + (paused ? 0 : pointer.x * 0.32 + scroll * 0.12),
+      smoothing,
+    );
+    group.rotation.x = lerp(group.rotation.x, 0.06 + (paused ? 0 : pointer.y * 0.09), smoothing);
+    group.rotation.z = lerp(group.rotation.z, -0.08 + (paused ? 0 : wave * 0.012), smoothing);
+    portals.forEach((mesh, i) => {
+      mesh.position.z = lerp(mesh.position.z, (i - 1) * p.spread, smoothing);
+      mesh.position.x = lerp(mesh.position.x, (i - 1) * (phase === 2 ? 0.48 : 0.24), smoothing);
+      mesh.position.y = lerp(
+        mesh.position.y,
+        p.lift + (paused ? 0 : Math.sin(elapsed * 0.65 + i * 0.55) * 0.065),
+        smoothing,
+      );
+      mesh.rotation.z = lerp(
+        mesh.rotation.z,
+        p.twist + (i - 1) * (phase === 3 ? 0 : 0.045),
+        smoothing,
+      );
+    });
+    card.position.x = lerp(card.position.x, p.cardX, smoothing);
+    card.position.y = lerp(card.position.y, p.cardY + wave * 0.09, smoothing);
+    card.position.z = lerp(card.position.z, p.cardZ, smoothing);
+    card.rotation.z = lerp(card.rotation.z, -0.04 + wave * 0.014, smoothing);
+    orb.position.y = 1.7 + (paused ? 0 : Math.sin(elapsed * 0.75 + 1) * 0.16);
+    orbit.rotation.z = paused ? 0.2 : elapsed * 0.09;
+    renderer.render(scene, camera);
+    host.classList.add('webgl-ready');
+    if (!paused) frame = requestAnimationFrame(draw);
+  }
+  invalidate = () => {
+    if (frame === null && visible && !document.hidden && !contextLost)
+      frame = requestAnimationFrame(draw);
+  };
+  host.addEventListener('pointermove', (event) => {
+    if (paused || event.pointerType === 'touch') return;
+    const bounds = host.getBoundingClientRect();
+    pointer.x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    pointer.y = (event.clientY - bounds.top) / bounds.height - 0.5;
+    invalidate();
   });
   host.addEventListener('pointerleave', () => {
     pointer.x = 0;
     pointer.y = 0;
   });
+  document.addEventListener('punto:scroll', (event) => {
+    scroll = event.detail.progress;
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else {
+      last = performance.now();
+      invalidate();
+    }
+  });
   new ResizeObserver(() => {
-    dirty = true;
-    const w = host.clientWidth,
-      h = host.clientHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.position.z = w < 420 ? 12 : 10;
+    const width = host.clientWidth;
+    const height = host.clientHeight;
+    if (!width || !height) return;
+    renderer.setSize(width, height, false);
+    camera.aspect = width / height;
+    camera.position.z = camera.aspect < 0.75 ? 14.4 : camera.aspect < 1 ? 12.6 : 11.5;
     camera.updateProjectionMatrix();
+    invalidate();
   }).observe(host);
   new IntersectionObserver(
-    (entries) => {
-      visible = entries[0].isIntersecting;
+    ([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) {
+        last = performance.now();
+        invalidate();
+      } else stop();
     },
-    { threshold: 0.05 },
+    { threshold: 0.01 },
   ).observe(host);
-  let t = 0,
-    last = performance.now();
-  function draw(now) {
-    requestAnimationFrame(draw);
-    const delta = Math.min((now - last) / 1000, 0.05);
-    last = now;
-    if (!visible || document.hidden) return;
-    if (paused && !dirty) return;
-    dirty = false;
-    if (!paused) t += delta;
-    const animation = !paused;
-    const targetY = -0.25 + (animation ? pointer.x * 0.5 : 0) + phase * 0.12;
-    group.rotation.y += (targetY - group.rotation.y) * (paused ? 1 : 0.055);
-    group.rotation.x +=
-      ((animation ? pointer.y * 0.12 : 0) - group.rotation.x) * (paused ? 1 : 0.05);
-    cardGroup.position.y = 0.4 + (animation ? Math.sin(t * 0.85) * 0.11 : 0);
-    cardGroup.rotation.z = (animation ? Math.sin(t * 0.5) * 0.025 : 0) - 0.08;
-    cardGroup.position.z += (1.45 + phase * 0.16 - cardGroup.position.z) * (paused ? 1 : 0.05);
-    portals.forEach((p, i) => {
-      p.rotation.z = -0.12 + (animation ? Math.sin(t * 0.45 + i * 0.4) * 0.024 : 0);
-    });
-    orb.position.y = 1.8 + (animation ? Math.sin(t * 0.8 + 1) * 0.13 : 0);
-    small.rotation.z = animation ? t * 0.12 : 0;
-    renderer.render(scene, camera);
-  }
-  requestAnimationFrame(draw);
-  host.addEventListener('webglcontextlost', (e) => {
-    e.preventDefault();
+  renderer.domElement.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault();
+    contextLost = true;
+    stop();
     host.classList.remove('webgl-ready');
-    motion.disabled = true;
   });
+  renderer.domElement.addEventListener('webglcontextrestored', () => {
+    contextLost = false;
+    invalidate();
+  });
+  invalidate();
 } catch (error) {
   host.classList.remove('webgl-ready');
-  motion.hidden = true;
+  host.querySelector('canvas')?.remove();
   console.info('Punto: anteprima statica attiva; WebGL non disponibile.');
 }

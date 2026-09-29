@@ -29,3 +29,7 @@ La demo salva le modifiche. Le istanze usate dai test automatici sono separate d
 ## Verifica nel browser
 
 Anteprima desktop a 1440 px e controlli responsive a 390 e 320 px, senza overflow orizzontale della pagina. Verificati rendering WebGL, selezione delle fasi e pausa; apertura della demo, creazione attività, invio in revisione, passaggio al ruolo cliente e approvazione. Verificati menu mobile, report e upload di una PNG ricodificata dal server in WebP. Gli screenshot nel repository provengono dal software funzionante.
+
+## Revisione della presentazione
+
+Dopo la revisione della scena 3D, ripetuti i 91 controlli HTTP su SQLite: tutti superati. Nessuna modifica alla logica PHP o allo schema. Verificati desktop 1440 px, mobile 390 e 320 px, assenza di overflow della pagina, selezione delle fasi anche con frecce da tastiera e comando di pausa. L’integrazione dei contenuti Higgsfield resta da collaudare dopo la generazione, attualmente bloccata dal piano del servizio.

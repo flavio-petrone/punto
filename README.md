@@ -25,7 +25,7 @@ Il report usa i dati registrati, con esportazione CSV. Lo storico collega ogni o
 - **Backend PHP**: sessioni, autorizzazioni sul server, API JSON, validazione, transazioni, upload privati, controllo delle modifiche concorrenti.
 - **Database relazionale**: 12 tabelle con chiavi esterne, vincoli univoci e indici. Schema condiviso MySQL/SQLite.
 - **JavaScript**: interfaccia del gestionale senza framework, ricerca, moduli, dialoghi, gestione degli errori e navigazione per commessa.
-- **3D e movimento**: geometrie, materiali, luci e ombre in Three.js; animazioni coordinate con GSAP. Nessun video usato per simulare il 3D.
+- **3D e movimento**: quattro composizioni interattive, materiali fisici con riflessi da studio, scheda dinamica e animazioni coordinate con GSAP. Pausa, tastiera, movimento ridotto e fallback CSS. Rendering sospeso fuori dallo schermo.
 - **Progettazione dell’interfaccia**: identità originale, layout responsive, contrasto tra presentazione editoriale e workspace operativo.
 
 Il frontend usa la stessa API nei tre ruoli. Nascondere un pulsante non costituisce il controllo di accesso: i permessi sono verificati anche dal backend.
@@ -109,5 +109,7 @@ Punto è una dimostrazione completa del flusso di una piccola commessa, non un s
 ## Fonti e licenze
 
 Il design e la scena 3D sono originali. Three.js e GSAP sono usati direttamente; questo repository non contiene esportazioni da Spline o Higgsfield. Non contiene codice, dati o documenti di aziende per cui lavora l’autore.
+
+Direzione visiva e stato dell’integrazione Higgsfield: [DIREZIONE_VISIVA.md](docs/DIREZIONE_VISIVA.md).
 
 Codice del progetto: [LICENSE](LICENSE). Librerie e font conservano le proprie licenze: [THIRD_PARTY.md](docs/THIRD_PARTY.md). Il codice è pubblicato come progetto di portfolio; la disponibilità su GitHub non implica una licenza open source o diritti di rivendita.
