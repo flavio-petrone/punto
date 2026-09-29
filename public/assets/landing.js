@@ -1,6 +1,5 @@
 'use strict';
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const preview = document.querySelector('.workspace-preview img');
 let presentationContext;
 function animatePresentation() {
   presentationContext?.revert();
@@ -32,14 +31,14 @@ function animatePresentation() {
         scrollTrigger: { trigger: section, start: 'top 85%', once: true },
       });
     });
-    gsap.from('.workspace-preview', {
+    gsap.from('.product-stage', {
       rotateX: 6,
       y: 45,
       scale: 0.97,
       transformPerspective: 1500,
       ease: 'none',
       scrollTrigger: {
-        trigger: '.workspace-preview',
+        trigger: '.product-stage',
         start: 'top 95%',
         end: 'top 30%',
         scrub: 0.7,
@@ -60,8 +59,4 @@ reduceMotion.addEventListener('change', animatePresentation);
 document.addEventListener('punto:motion', ({ detail }) => {
   if (detail.paused) presentationContext?.revert();
   else if (!reduceMotion.matches) animatePresentation();
-});
-preview.addEventListener('error', function () {
-  this.hidden = true;
-  this.nextElementSibling.style.display = 'block';
 });

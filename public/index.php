@@ -1,8 +1,8 @@
 <?php require __DIR__ . '/../app/bootstrap.php';
 \Punto\headers();
 ?><!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Punto — Il lavoro trova la sua forma</title><meta name="description" content="Dalla prima richiesta alla consegna approvata. Punto è il workspace per piccoli studi e professionisti: clienti, commesse e revisioni nello stesso posto."><meta name="theme-color" content="#153b33"><link rel="icon" href="assets/icon.svg"><link rel="stylesheet" href="assets/base.css"><link rel="stylesheet" href="assets/landing.css"><link rel="stylesheet" href="assets/cinematic.css"><script src="assets/vendor/gsap.min.js" defer></script><script src="assets/vendor/ScrollTrigger.min.js" defer></script><script src="assets/landing.js" defer></script><script type="module" src="assets/scene.js"></script></head>
-<body><a class="skip" href="#main">Vai al contenuto</a><header class="site-header"><a class="brand dark" href="./" aria-label="Punto, home">punto<i></i></a><nav aria-label="Navigazione principale"><a href="#metodo">Il metodo</a><a href="#workspace">Il workspace</a><a href="#domande">Domande</a></nav><a class="btn small" href="app.php">Entra in Punto <span>↗</span></a></header>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Punto — Il lavoro trova la sua forma</title><meta name="description" content="Dalla prima richiesta alla consegna approvata. Punto è il workspace per piccoli studi e professionisti: clienti, commesse e revisioni nello stesso posto."><meta name="theme-color" content="#153b33"><link rel="icon" href="assets/icon.svg"><link rel="stylesheet" href="assets/base.css"><link rel="stylesheet" href="assets/landing.css"><link rel="stylesheet" href="assets/cinematic.css"><link rel="stylesheet" href="assets/product-showcase.css"><link rel="stylesheet" href="assets/product-film.css"><script src="assets/vendor/gsap.min.js" defer></script><script src="assets/vendor/ScrollTrigger.min.js" defer></script><script src="assets/landing.js" defer></script><script src="assets/product-showcase.js" defer></script><script src="assets/product-film.js" defer></script><script type="module" src="assets/scene.js"></script></head>
+<body><a class="skip" href="#main">Vai al contenuto</a><header class="site-header"><a class="brand dark" href="./" aria-label="Punto, home">punto<i></i></a><nav aria-label="Navigazione principale"><a href="#film">Il film</a><a href="#metodo">Il metodo</a><a href="#workspace">Il workspace</a><a href="#domande">Domande</a></nav><a class="btn small" href="app.php">Entra in Punto <span>↗</span></a></header>
 <main id="main">
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero-copy">
@@ -10,7 +10,7 @@
     <h1 id="hero-title">Il lavoro trova<br>la sua <em>forma.</em></h1>
     <p class="hero-intro">Dai spazio alle idee.<br>Al resto, dai un punto.</p>
     <p class="hero-detail">Clienti, progetti e approvazioni. Un filo continuo dalla prima richiesta all’ultimo sì.</p>
-    <div class="hero-actions"><a class="btn" href="app.php">Esplora il workspace <span class="arrow">↗</span></a><a class="text-link" href="#metodo">Come funziona <span>↓</span></a></div>
+    <div class="hero-actions"><a class="btn" href="app.php">Esplora il workspace <span class="arrow">↗</span></a><a class="text-link" href="#film">Guarda il film <span>↓</span></a></div>
     <div class="hero-note"><span class="mini-mark">fp.</span><p>Ideato e sviluppato da <strong>Flavio Petrone</strong><br>Un progetto indipendente. Un software da provare.</p></div>
   </div>
   <div class="hero-art">
@@ -32,8 +32,54 @@
   </div>
 </section>
 <div class="principles"><span>Pensato per piccoli team, con grandi idee.</span><div><span>Studi creativi</span><i>·</i><span>Consulenti</span><i>·</i><span>Freelance</span></div><a href="app.php">Un posto per tutto ↗</a></div>
+<section class="film-section" id="film" data-product-film aria-labelledby="film-title">
+  <div class="film-heading"><div><p class="eyebrow">PUNTO / IN MOVIMENTO</p><h2 id="film-title">Le idee si incontrano.<br><em>Il lavoro prende forma.</em></h2></div><p>Elementi distinti, una direzione comune.<br>È da qui che parte Punto.</p></div>
+  <figure class="film-frame">
+    <video id="punto-film" width="1920" height="1080" preload="none" muted playsinline loop poster="assets/films/punto-film-poster.jpg" data-src="assets/films/punto-film-loop-1080.mp4" data-mobile-src="assets/films/punto-film-loop-540.mp4" aria-label="Film di Punto: tre portali verde bosco e lime si separano lentamente e ruotano su un fondale avorio." aria-describedby="film-description"></video>
+    <figcaption class="film-controls">
+      <button type="button" class="film-toggle" data-film-toggle aria-controls="punto-film"><span data-film-symbol aria-hidden="true">▷</span><span data-film-label>Riproduci il film</span></button>
+      <div class="film-progress" aria-hidden="true"><span data-film-progress></span></div>
+      <span class="film-time" data-film-time aria-hidden="true">0:00 / 0:10</span>
+    </figcaption>
+  </figure>
+  <p class="film-status" data-film-status role="status"></p>
+  <div class="film-note"><span id="film-description">Tre forme. Un unico punto d’incontro.</span><span>Film in loop · Senza audio</span></div>
+  <noscript><p><a class="text-link" href="assets/films/punto-film-loop-1080.mp4">Apri il film di Punto ↗</a></p></noscript>
+</section>
 <section class="method section" id="metodo"><div class="section-top"><p class="eyebrow">01 / UN FILO CONTINUO</p><p>Il progetto avanza.<br>Le informazioni lo seguono.</p></div><h2>Da «ci sarebbe un’idea»<br>a <em>«è proprio così».</em></h2><div class="method-grid"><article><span class="step-number">01</span><h3>Ascolta.</h3><p>Il cliente apre una richiesta, spiega cosa serve e indica la priorità. Il brief ha già un posto.</p><div class="mini-request"><span class="pill warm">Nuova richiesta</span><strong>Una nuova pagina eventi</strong><span>Giulia · Atelier Nove <b>↗</b></span></div></article><article><span class="step-number">02</span><h3>Dai una direzione.</h3><p>Trasforma la richiesta in commessa. Assegna attività, stabilisci una scadenza e registra il tempo.</p><div class="mini-flow"><span>Da fare</span><span>In corso <i>↗</i></span><span>In revisione</span></div></article><article><span class="step-number">03</span><h3>Chiudi il cerchio.</h3><p>Condividi la consegna. Il cliente approva o chiede modifiche. Ogni versione e decisione resta nello storico.</p><div class="mini-approved"><span>✓</span><div><strong>Consegna approvata</strong><small>Una decisione chiara. Per tutti.</small></div></div></article></div></section>
-<section class="workspace-section section" id="workspace"><div class="section-top"><p class="eyebrow">02 / IL TUO SPAZIO OPERATIVO</p><span class="pill">Progettato attorno al lavoro</span></div><div class="workspace-heading"><h2>Tutto sotto controllo.<br><em>Senza fare rumore.</em></h2><p>Una panoramica leggibile, poi il dettaglio che serve. Nessun passaggio perso tra messaggi, file e fogli sparsi.</p></div><a class="workspace-preview" href="app.php" aria-label="Apri il gestionale Punto"><div class="preview-top"><span><i></i><i></i><i></i></span><small>punto / workspace</small><b>Apri la demo ↗</b></div><img src="assets/workspace-preview.png" alt="Schermata reale di Punto: panoramica delle commesse, attività e richieste" loading="lazy" width="1440" height="1000"><div class="preview-placeholder"><span class="brand">punto<i></i></span><h3>Il tuo prossimo progetto<br>parte da qui.</h3><span>Apri il workspace ↗</span></div></a><div class="workspace-foot"><span>Interfaccia del gestionale funzionante, con dati dimostrativi.</span><a class="text-link" href="app.php">Provalo da tre punti di vista ↗</a></div></section>
+<section class="workspace-section section" id="workspace"><div class="section-top"><p class="eyebrow">02 / IL TUO SPAZIO OPERATIVO</p><span class="pill">Progettato attorno al lavoro</span></div><div class="workspace-heading"><h2>Tutto sotto controllo.<br><em>Senza fare rumore.</em></h2><p>Una panoramica leggibile, poi il dettaglio che serve. Nessun passaggio perso tra messaggi, file e fogli sparsi.</p></div><div class="product-showcase" data-product-showcase>
+  <div class="product-toolbar">
+    <div class="product-tabs" role="tablist" aria-label="Schermate del workspace">
+      <button id="view-overview" role="tab" aria-selected="true" aria-controls="screen-overview">Panoramica</button>
+      <button id="view-project" role="tab" aria-selected="false" aria-controls="screen-project" tabindex="-1">La commessa</button>
+    </div>
+    <button class="product-enlarge" data-enlarge>Guarda da vicino <span aria-hidden="true">↗</span></button>
+  </div>
+  <div class="product-stage">
+    <div class="product-machine">
+      <div class="product-lid">
+        <div class="product-screen">
+          <div id="screen-overview" role="tabpanel" aria-labelledby="view-overview">
+            <img src="assets/punto-overview.jpg" alt="Punto: panoramica con commesse attive, richieste e ore registrate" loading="lazy" width="1265" height="712">
+          </div>
+          <div id="screen-project" role="tabpanel" aria-labelledby="view-project" hidden>
+            <img src="assets/punto-project.jpg" alt="Punto: commessa Atelier Nove con attività organizzate per stato" loading="lazy" width="1265" height="712">
+          </div>
+        </div>
+      </div>
+      <div class="product-base" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="product-caption" aria-live="polite">
+    <h3 data-view-title>Il quadro completo, in un colpo d’occhio.</h3>
+    <p data-view-description>Richieste, commesse e tempi: la giornata parte da una visione chiara.</p>
+  </div>
+</div>
+<dialog class="product-dialog" id="product-detail" aria-labelledby="product-detail-title">
+  <div class="product-dialog-top"><h2 id="product-detail-title">Punto / Panoramica</h2><button type="button">Chiudi <span aria-hidden="true">×</span></button></div>
+  <img src="assets/punto-overview.jpg" alt="Panoramica del workspace Punto" width="1265" height="712" loading="lazy">
+  <p>Schermata del gestionale funzionante, con dati dimostrativi.</p>
+</dialog><div class="workspace-foot"><span>Interfaccia del gestionale funzionante, con dati dimostrativi.</span><a class="text-link" href="app.php">Provalo da tre punti di vista ↗</a></div></section>
 <section class="roles-section section"><div class="role-title"><p class="eyebrow">03 / OGNUNO AL POSTO GIUSTO</p><h2>Stesso progetto.<br>Il tuo <em>punto di vista.</em></h2><p>Le persone vedono quello che serve al loro ruolo. Il lavoro resta collegato.</p></div><div class="roles"><article><span class="role-icon">↗</span><div><h3>Chi guida lo studio</h3><p>Clienti, richieste, persone e commesse. Una visione completa, con tempi ed esportazione dei report.</p></div><span>01</span></article><article><span class="role-icon">⌘</span><div><h3>Chi porta avanti il lavoro</h3><p>Le commesse assegnate, le attività da seguire, il tempo da registrare e i file da consegnare.</p></div><span>02</span></article><article><span class="role-icon">✓</span><div><h3>Chi si affida a te</h3><p>Un’area cliente per inviare richieste, commentare e approvare. Senza entrare nelle commesse degli altri.</p></div><span>03</span></article></div></section>
-<section class="faq-section section" id="domande"><div><p class="eyebrow">I PUNTI DA CHIARIRE</p><h2>Concretamente?</h2></div><div class="faq"><details><summary>È solo una presentazione grafica?<span>+</span></summary><p>No. Il workspace salva richieste, attività, commenti e consegne in un database relazionale. Puoi provare un percorso completo, con autorizzazioni diverse per amministratore, team e cliente.</p></details><details><summary>Per chi è pensato?<span>+</span></summary><p>Per un piccolo studio di servizi o un professionista che lavora su commesse: web, design, consulenza e comunicazione. Gestisce il lavoro e le approvazioni; non sostituisce la contabilità o un sistema di fatturazione.</p></details><details><summary>Come funziona questa demo?<span>+</span></summary><p>In locale puoi entrare nei tre ruoli con un clic. Persone e commesse sono esempi inventati. Le modifiche vengono salvate: puoi creare un’attività e verificarne l’approvazione passando al ruolo cliente. L’accesso rapido è disabilitato fuori dall’ambiente locale.</p></details><details><summary>Che cosa c’è dietro?<span>+</span></summary><p>PHP 8.4, database MySQL o SQLite per l’avvio rapido, JavaScript e un’API con permessi verificati sul server. La scena 3D originale è realizzata con Three.js: materiali, luci e movimenti vengono renderizzati nel browser. GSAP coordina le transizioni. Puoi sospendere le animazioni; il sito rispetta anche la preferenza di movimento ridotto. Asset e font sono serviti localmente.</p></details></div></section>
+<section class="faq-section section" id="domande"><div><p class="eyebrow">I PUNTI DA CHIARIRE</p><h2>Concretamente?</h2></div><div class="faq"><details><summary>È solo una presentazione grafica?<span>+</span></summary><p>No. Il workspace salva richieste, attività, commenti e consegne in un database relazionale. Puoi provare un percorso completo, con autorizzazioni diverse per amministratore, team e cliente.</p></details><details><summary>Per chi è pensato?<span>+</span></summary><p>Per un piccolo studio di servizi o un professionista che lavora su commesse: web, design, consulenza e comunicazione. Gestisce il lavoro e le approvazioni; non sostituisce la contabilità o un sistema di fatturazione.</p></details><details><summary>Come funziona questa demo?<span>+</span></summary><p>In locale puoi entrare nei tre ruoli con un clic. Persone e commesse sono esempi inventati. Le modifiche vengono salvate: puoi creare un’attività e verificarne l’approvazione passando al ruolo cliente. L’accesso rapido è disabilitato fuori dall’ambiente locale.</p></details><details><summary>Che cosa c’è dietro?<span>+</span></summary><p>PHP 8.4, database MySQL o SQLite per l’avvio rapido, JavaScript e un’API con permessi verificati sul server. La presentazione unisce una scena 3D interattiva e un breve film, con materiali, luci e movimenti coordinati. Puoi sospendere le animazioni; il sito rispetta anche la preferenza di movimento ridotto. Asset e font sono serviti localmente.</p></details></div></section>
 <section class="closing"><span class="eyebrow">IL PROSSIMO PASSO HA UN POSTO.</span><h2>Facciamo<br><em>il punto.</em><span>↗</span></h2><a class="btn light" href="app.php">Entra nel workspace <span class="arrow">↗</span></a><p>Apri. Esplora. Porta avanti un progetto.</p></section></main><footer><a class="brand dark" href="./">punto<i></i></a><p>Ideato e sviluppato da Flavio Petrone.<br>Progetto personale dimostrativo · 2026</p><a href="#main">Torna su ↑</a></footer></body></html>

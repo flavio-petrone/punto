@@ -1,19 +1,33 @@
 # Direzione visiva di Punto
 
-## Revisione locale del 29 settembre 2026
+## Identità e funzione
 
-Presentazione editoriale avorio, verde bosco e lime. Una scultura originale di tre portali accompagna le quattro fasi: richiesta, progetto, revisione, consegna. La scheda sospesa cambia contenuto insieme allo stato selezionato. I testi della scena sono esempi illustrativi; i dati operativi sono nel workspace PHP.
+Avorio, verde bosco e lime. Tipografia editoriale nella presentazione, interfaccia compatta nel workspace. Il 3D accompagna il software senza entrare nei flussi operativi: richieste, commesse, attività e approvazioni rimangono leggibili e rapide da usare.
 
-La scena usa Three.js con geometrie estruse, materiali fisici e ambiente di riflessione costruito nel codice. La luce da studio non richiede texture HDR esterne. Il movimento reagisce al cursore e allo scorrimento senza bloccare lo scroll della pagina. La scheda del gestionale entra con una prospettiva lieve, coordinata da GSAP.
+La scultura astratta rappresenta elementi distinti che trovano una direzione comune. Le quattro composizioni della scena seguono richiesta, progetto, revisione e consegna. I contenuti della scheda nella scena sono esempi illustrativi; i dati operativi sono nel gestionale PHP.
 
-I quattro comandi sono utilizzabili con clic, tocco, frecce, Home e Fine. Il pulsante di pausa interrompe la scena e le animazioni GSAP. È rispettata la preferenza `prefers-reduced-motion`. Fuori dallo schermo o con scheda nascosta il ciclo di rendering viene sospeso. Senza WebGL resta una composizione CSS. Il rapporto di pixel è limitato a 1.5 per contenere il carico.
+## Scena interattiva
 
-## Integrazione Higgsfield richiesta, ancora da completare
+Geometrie originali costruite con Three.js, materiali fisici e luci da studio. La scena risponde al cursore e alle quattro fasi, selezionabili anche da tastiera. GSAP coordina gli ingressi e il mockup del workspace; lo scorrimento resta nativo.
 
-Il plugin è collegato. È stato creato un progetto media privato “Punto — Forma e direzione”, ma la prima generazione immagine è stata rifiutata dal servizio con `Requires basic plan or higher`. Non è stato generato né integrato alcun asset Higgsfield. La scena attualmente visibile è interamente renderizzata da Three.js.
+La preferenza di movimento ridotto e il comando manuale sospendono le animazioni. Il rendering viene fermato fuori vista e a scheda nascosta, il rapporto di pixel è limitato a 1,5. Senza WebGL rimane una composizione CSS.
 
-La direzione proposta per gli asset è un render editoriale degli stessi portali, con ceramica verde, un elemento lime, metallo champagne, fondale avorio e luce naturale. Un eventuale filmato sarà un contenuto visivo aggiuntivo, distinto dal modello interattivo e dall’interfaccia reale.
+## Film in loop
 
-Il backend PHP/MySQL rimane il sistema operativo del prodotto. L’integrazione non richiede il trasferimento di credenziali, database o documenti dei clienti alla piattaforma di generazione.
+La clip è generata con Kling a partire da una cattura del modello originale importato in Spline. Non è un export video nativo Spline né una riproduzione geometrica esatta del modello: contiene anche un secondo anello introdotto dalla generazione.
 
-La revisione è locale e non è stata inviata al repository pubblico. La prima versione del repository era già stata pubblicata prima della richiesta di sospensione. La nuova pubblicazione resta sospesa.
+L’export ufficiale senza watermark è stato montato in avanti e al contrario, senza duplicare i fotogrammi alle estremità: 240 fotogrammi, 24 fps, ciclo di 10 secondi. H.264, senza audio, Full HD su desktop e 960 × 540 su mobile. I file finali sono serviti localmente da `public/assets/films/`, con poster JPEG e caricamento differito.
+
+Il film parte quando visibile e continua in loop. Rimangono disponibili pausa e ripresa da tastiera; viene sospeso fuori vista, a scheda nascosta e con la pausa globale. Movimento ridotto e risparmio dati impediscono l’avvio automatico. Nessun nome o marchio degli strumenti compare nell’interfaccia.
+
+## Anteprime del software
+
+Il mockup del workspace è HTML/CSS originale con due schermate reali della demo: panoramica e commessa. Le schede sono utilizzabili con tastiera; l’ingrandimento usa un dialogo nativo con ritorno del focus. Le immagini contengono dati dimostrativi.
+
+Le prove di export Rotato con watermark e gli editor esterni non fanno parte della release. Non sono necessari abbonamenti a questi strumenti per avviare il codice pubblicato. I materiali di lavorazione rimangono locali ed esclusi dal repository.
+
+## Verifiche
+
+Controllati riproduzione effettiva, ritorno automatico all’inizio del loop, pausa/ripresa da tastiera, arresto fuori vista, pausa globale, cambio delle anteprime e ingrandimento. La variante mobile è stata verificata nel browser a 390 px, senza overflow orizzontale. Le preferenze di movimento ridotto e risparmio dati sono gestite dal codice; non sono state emulate nel collaudo del film.
+
+Le schermate di presentazione sono acquisite dal sito locale funzionante. Per il backend, i risultati e i limiti del collaudo sono in [TEST.md](TEST.md).

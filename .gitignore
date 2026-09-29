@@ -5,3 +5,11 @@
 *.log
 .DS_Store
 __pycache__/
+
+# Materiali di lavorazione privati; la release usa solo gli asset finali.
+/design/
+.env
+.env.*
+*.sqlite
+*.sqlite-*
+*.zip

@@ -6,8 +6,10 @@ Un sito di presentazione con una scena 3D originale e un gestionale per piccoli 
 
 Progetto personale dimostrativo di **Flavio Petrone**. Identità, persone e commesse di esempio sono inventate. Il software esegue operazioni reali e salva i dati sul server.
 
-![Punto — presentazione](docs/landing-desktop.png)
-![Punto — workspace funzionante](public/assets/workspace-preview.png)
+![Punto — presentazione](docs/landing-desktop.jpg)
+![Punto — workspace funzionante](public/assets/punto-overview.jpg)
+
+[Guarda il film in loop](public/assets/films/punto-film-loop-1080.mp4) · [Anteprima mobile](docs/landing-mobile.jpg)
 
 ## Il percorso completo
 
@@ -25,7 +27,7 @@ Il report usa i dati registrati, con esportazione CSV. Lo storico collega ogni o
 - **Backend PHP**: sessioni, autorizzazioni sul server, API JSON, validazione, transazioni, upload privati, controllo delle modifiche concorrenti.
 - **Database relazionale**: 12 tabelle con chiavi esterne, vincoli univoci e indici. Schema condiviso MySQL/SQLite.
 - **JavaScript**: interfaccia del gestionale senza framework, ricerca, moduli, dialoghi, gestione degli errori e navigazione per commessa.
-- **3D e movimento**: quattro composizioni interattive, materiali fisici con riflessi da studio, scheda dinamica e animazioni coordinate con GSAP. Pausa, tastiera, movimento ridotto e fallback CSS. Rendering sospeso fuori dallo schermo.
+- **3D e movimento**: quattro composizioni interattive, materiali fisici con riflessi da studio, film astratto in loop e anteprime reali del gestionale in un mockup animato. Pausa, tastiera, movimento ridotto e fallback CSS. Rendering e video sospesi fuori dallo schermo.
 - **Progettazione dell’interfaccia**: identità originale, layout responsive, contrasto tra presentazione editoriale e workspace operativo.
 
 Il frontend usa la stessa API nei tre ruoli. Nascondere un pulsante non costituisce il controllo di accesso: i permessi sono verificati anche dal backend.
@@ -108,8 +110,8 @@ Punto è una dimostrazione completa del flusso di una piccola commessa, non un s
 
 ## Fonti e licenze
 
-Il design e la scena 3D sono originali. Three.js e GSAP sono usati direttamente; questo repository non contiene esportazioni da Spline o Higgsfield. Non contiene codice, dati o documenti di aziende per cui lavora l’autore.
+Il design e la geometria della scena 3D sono originali. La scena interattiva usa Three.js e GSAP. Il film è un contenuto generato con Kling da un riferimento del modello originale, esportato ufficialmente senza watermark e montato in un loop di 10 secondi. Le schermate del workspace provengono dall’applicazione funzionante, con dati dimostrativi. Non sono inclusi codice, dati o documenti di aziende per cui lavora l’autore.
 
-Direzione visiva e stato dell’integrazione Higgsfield: [DIREZIONE_VISIVA.md](docs/DIREZIONE_VISIVA.md).
+Scelte grafiche, movimento e provenienza del film: [DIREZIONE_VISIVA.md](docs/DIREZIONE_VISIVA.md).
 
 Codice del progetto: [LICENSE](LICENSE). Librerie e font conservano le proprie licenze: [THIRD_PARTY.md](docs/THIRD_PARTY.md). Il codice è pubblicato come progetto di portfolio; la disponibilità su GitHub non implica una licenza open source o diritti di rivendita.

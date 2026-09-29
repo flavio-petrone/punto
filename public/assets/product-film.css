@@ -1,0 +1,142 @@
+.film-section {
+  padding: 88px 4.5% 96px;
+  scroll-margin-top: 24px;
+}
+.film-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+.film-heading h2 {
+  font-size: clamp(38px, 4.4vw, 72px);
+  line-height: 1.07;
+  letter-spacing: -0.055em;
+  margin: 18px 0 0;
+}
+.film-heading > p {
+  max-width: 280px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.film-frame {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #ece9df;
+  border: 1px solid #153b3314;
+}
+.film-frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+}
+.film-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 22px;
+  background: #eeeae0;
+  border-top: 1px solid #153b3314;
+}
+.film-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  min-width: 166px;
+  padding: 12px 20px;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  color: #fafaf2;
+  border-radius: 100px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.film-toggle:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+.film-toggle:hover:not(:disabled) {
+  background: #31554b;
+}
+.film-toggle:focus-visible {
+  outline: 3px solid #698846;
+  outline-offset: 4px;
+}
+.film-progress {
+  flex: 1;
+  height: 3px;
+  background: #153b3320;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.film-progress span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.film-time {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: #566459;
+  white-space: nowrap;
+}
+.film-status {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 12px 0 0;
+  min-height: 20px;
+}
+.film-status:empty {
+  display: none;
+}
+.film-note {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 16px;
+  font-size: 10px;
+  color: var(--muted);
+}
+@media (max-width: 700px) {
+  .film-section {
+    padding: 60px 5% 64px;
+  }
+  .film-heading {
+    display: block;
+    margin-bottom: 24px;
+  }
+  .film-heading h2 {
+    font-size: clamp(36px, 9vw, 48px);
+  }
+  .film-heading > p {
+    margin-top: 20px;
+    max-width: 320px;
+  }
+  .film-frame {
+    border-radius: 16px;
+  }
+  .film-controls {
+    gap: 12px;
+    padding: 12px;
+  }
+  .film-toggle {
+    min-width: 140px;
+    padding: 10px 14px;
+    font-size: 11px;
+  }
+  .film-note {
+    font-size: 9px;
+  }
+}

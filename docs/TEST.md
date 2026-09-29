@@ -32,4 +32,10 @@ Anteprima desktop a 1440 px e controlli responsive a 390 e 320 px, senza overflo
 
 ## Revisione della presentazione
 
-Dopo la revisione della scena 3D, ripetuti i 91 controlli HTTP su SQLite: tutti superati. Nessuna modifica alla logica PHP o allo schema. Verificati desktop 1440 px, mobile 390 e 320 px, assenza di overflow della pagina, selezione delle fasi anche con frecce da tastiera e comando di pausa. L’integrazione dei contenuti Higgsfield resta da collaudare dopo la generazione, attualmente bloccata dal piano del servizio.
+Dopo la revisione della scena 3D, ripetuti i 91 controlli HTTP su SQLite: tutti superati. Nessuna modifica alla logica PHP o allo schema. Verificati desktop 1440 px, mobile 390 e 320 px, assenza di overflow della pagina, selezione delle fasi anche con frecce da tastiera e comando di pausa. La versione finale include un film locale in loop; le prove degli editor esterni non fanno parte della release.
+
+## Preparazione della pubblicazione — 29 settembre 2026
+
+Ripetuta la suite HTTP sul codice finale: **91 controlli SQLite superati**. Il precedente collaudo MariaDB resta quello indicato nella tabella; il job MySQL 8 viene eseguito su GitHub Actions a ogni push. Il backend non è cambiato nella revisione grafica.
+
+Film: ciclo di 10 secondi verificato fino al ritorno automatico all’inizio, pausa/ripresa da tastiera, asset Full HD e mobile locali. Presentazione controllata a 1280 e 390 px; documentazione e schermate aggiornate. Configurazione, credenziali, database, allegati e materiali di lavorazione sono esclusi dalla pubblicazione.
