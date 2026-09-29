@@ -39,3 +39,9 @@ Dopo la revisione della scena 3D, ripetuti i 91 controlli HTTP su SQLite: tutti 
 Ripetuta la suite HTTP sul codice finale: **91 controlli SQLite superati**. Il precedente collaudo MariaDB resta quello indicato nella tabella; il job MySQL 8 viene eseguito su GitHub Actions a ogni push. Il backend non è cambiato nella revisione grafica.
 
 Film: ciclo di 10 secondi verificato fino al ritorno automatico all’inizio, pausa/ripresa da tastiera, asset Full HD e mobile locali. Presentazione controllata a 1280 e 390 px; documentazione e schermate aggiornate. Configurazione, credenziali, database, allegati e materiali di lavorazione sono esclusi dalla pubblicazione.
+
+## Hosting condiviso
+
+`python3 tests/integration.py` esegue anche il percorso con prefisso `punto_`: tabelle preesistenti conservate, rifiuto di reinstallazione anche senza il marker, backup/ripristino e permessi applicativi. Con `PUNTO_TEST_MYSQL_DSN` esegue entrambe le varianti su MySQL/MariaDB.
+
+`python3 tests/hosting.py` genera il pacchetto isolato e verifica codice di attivazione errato, creazione dell’amministratore, preservazione delle altre tabelle, disabilitazione dell’installer e login in produzione. I divieti `.htaccess` richiedono inoltre una verifica HTTP sull’hosting reale.

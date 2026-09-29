@@ -5,15 +5,15 @@
 - PHP 8.2 o successivo; sviluppo e collaudo locale con PHP 8.4.11.
 - PDO + `pdo_mysql` per MySQL, oppure `pdo_sqlite` per la demo rapida.
 - `mbstring`, `fileinfo`, `gd` con supporto WebP, `zip`.
-- MySQL 8+ con InnoDB e utf8mb4. Il percorso PDO MySQL è stato collaudato localmente su MariaDB 13.0.2; non equivale a un test su ogni versione del server MySQL.
+- MySQL 8+ con InnoDB e utf8mb4. Il percorso PDO MySQL è collaudato su MySQL 8 in CI e localmente su MariaDB 13.0.2; non equivale a un test su ogni versione del server.
 - HTTPS per qualsiasi installazione pubblica; filesystem scrivibile in `storage/` dal processo PHP.
 
 ## Installazione senza dati demo
 
-1. Crea un database dedicato vuoto. Non usare il database di un’altra applicazione.
+1. Crea un database dedicato vuoto, oppure imposta `DB_TABLE_PREFIX` (per esempio `punto_`) per usare tabelle separate in un database condiviso. Il prefisso deve essere libero e non va cambiato dopo l’installazione.
 2. Copia `config.example.php` in `config.php` e configura i parametri. Mantieni `APP_ENV=production`.
 3. Imposta `ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` nell’ambiente del comando. Usa almeno 12 caratteri per la password. Evita di scrivere credenziali nella cronologia del terminale: usa l’ambiente del processo o un input riservato del tuo sistema di distribuzione.
-4. Esegui `php bin/setup.php`. Il programma rifiuta una seconda installazione o un database già popolato.
+4. Esegui `php bin/setup.php`. Il programma rifiuta una seconda installazione o tabelle già presenti nel prefisso scelto. Senza prefisso il database deve essere completamente vuoto.
 5. Configura il server web con **document root sulla cartella `public/`**. `app/`, `config.php`, `database/`, `bin/` e `storage/` devono restare fuori dalla radice pubblica.
 6. Imposta `upload_max_filesize=6M` e `post_max_size=7M` in PHP; il limite applicativo del singolo file è 5 MB.
 7. Apri `/app.php`, accedi con l’amministratore, crea clienti e accessi, poi una commessa.
@@ -46,7 +46,7 @@ php bin/backup.php
 
 Produce uno ZIP privato in `storage/backups/`, con snapshot delle tabelle e allegati. L’archivio contiene email, hash delle password e file dei clienti: conservarlo in storage privato, idealmente cifrato dall’infrastruttura. La configurazione e i parametri del database non sono inclusi.
 
-Per ripristinare, prepara un’installazione separata con un **database completamente vuoto**, configura `config.php` ed esegui:
+Per ripristinare, prepara un’installazione separata con un **database vuoto o prefisso completamente libero**, configura `config.php` ed esegui:
 
 ```sh
 php bin/restore.php /percorso/backup.zip --empty-database
@@ -57,3 +57,15 @@ Il comando non sovrascrive un’installazione esistente. Ripristina esclusivamen
 ## Prima di un uso commerciale
 
 Questa release è un progetto di portfolio funzionante, non un servizio gestito con SLA. Per l’uso con clienti reali vanno definiti hosting, dominio, backup periodici con prove di ripristino, monitoraggio, retention dei dati, scansione degli allegati e procedure di recupero degli accessi. Nessuno di questi servizi è attivato dalla pubblicazione su GitHub.
+
+## Pacchetto per AlterVista / hosting Apache condiviso
+
+`python3 bin/build-hosting.py --config /percorso/hosting.php --output /percorso/nuova-release --url https://account.altervista.org/punto/ --altervista`
+
+Il file PHP privato deve restituire i parametri DB e `DB_TABLE_PREFIX => 'punto_'`. Il generatore non legge la configurazione o il database di sviluppo. Copia esclusivamente runtime e asset; dispone i file riservati in `_private/`, bloccata sia dal `.htaccess` principale sia da quello interno. Adatta gli entry point senza cambiare gli URL delle pagine. La variante AlterVista imposta PHP 8.4.
+
+Carica `punto-hosting.zip` in una cartella **nuova e vuota**, quindi verifica HTTP → HTTPS e risposte 403 per `_private/config.php`, `_private/storage/protection.txt` e `_private/database/schema.php`. Non proseguire se un file privato è raggiungibile.
+
+Apri `install.php` via HTTPS: l’amministratore inserisce il codice di `ATTIVAZIONE-PRIVATA.txt` e sceglie email/password. Il codice casuale scade dopo 24 ore; sul server è salvato solo il suo hash. CSRF, lock esclusivo e controllo del prefisso impediscono installazioni accidentali sovrapposte. Dopo la creazione dell’account `storage/installed` disabilita l’installer. Non caricare il file del codice, né il pacchetto privato, su GitHub. Nessun accesso demo automatico viene abilitato sul sito pubblico.
+
+Le protezioni Apache vanno controllate sul server effettivo: il server PHP integrato ignora `.htaccess`. La directory `storage/uploads` resta privata; gli allegati sono serviti solo attraverso l’API dopo verifica dei permessi.

@@ -22,7 +22,7 @@ $tables = [
 $data = transaction(function () use ($tables) {
   $d = [];
   foreach ($tables as $table) {
-    $d[$table] = all('SELECT * FROM ' . $table);
+    $d[$table] = all('SELECT * FROM ' . table_name($table));
   }
   return $d;
 });

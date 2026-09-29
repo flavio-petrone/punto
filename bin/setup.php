@@ -21,25 +21,8 @@ if (strlen($password) < 12) {
   throw new \RuntimeException('Password di almeno 12 caratteri.');
 }
 $driver = db()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-$tables =
-  $driver === 'sqlite'
-    ? all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
-    : all('SHOW TABLES');
-if ($tables) {
-  throw new \RuntimeException(
-    'Usa un database dedicato vuoto. Nessuna tabella esistente verrà modificata.',
-  );
-}
-if ($driver === 'mysql') {
-  db()->exec('SET default_storage_engine=InnoDB');
-  db()->exec('SET NAMES utf8mb4');
-}
-foreach (explode(';', file_get_contents(ROOT . '/database/schema.sql')) as $sql) {
-  if (trim($sql)) {
-    db()->exec($sql);
-  }
-}
-query('INSERT INTO schema_migrations(version,applied_at) VALUES(1,?)', [now()]);
+create_schema();
+query('INSERT INTO {{schema_migrations}}(version,applied_at) VALUES(1,?)', [now()]);
 transaction(function () use ($demo, $mail, $password) {
   $date = fn(int $offset) => gmdate('Y-m-d', time() + 86400 * $offset);
   $created = now();
@@ -126,9 +109,9 @@ transaction(function () use ($demo, $mail, $password) {
       'created_at' => $created,
       'updated_at' => $created,
     ]);
-    query('INSERT INTO project_members(project_id,user_id) VALUES(?,?)', [$p['id'], $admin['id']]);
+    query('INSERT INTO {{project_members}}(project_id,user_id) VALUES(?,?)', [$p['id'], $admin['id']]);
     if ($n < 2) {
-      query('INSERT INTO project_members(project_id,user_id) VALUES(?,?)', [
+      query('INSERT INTO {{project_members}}(project_id,user_id) VALUES(?,?)', [
         $p['id'],
         $member['id'],
       ]);

@@ -15,6 +15,7 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: pdo_sqlite, mbstring, fileinfo, gd, zip
           coverage: none
+      - run: python3 tests/hosting.py
       - run: python3 tests/integration.py
   mysql:
     runs-on: ubuntu-latest
@@ -35,6 +36,7 @@ jobs:
           php-version: '8.4'
           extensions: pdo_mysql, pdo_sqlite, mbstring, fileinfo, gd, zip
           coverage: none
+      - run: python3 tests/hosting.py
       - run: python3 tests/integration.py
         env:
           PUNTO_TEST_MYSQL_DSN: mysql:host=127.0.0.1;port=3306;dbname=punto_test;charset=utf8mb4

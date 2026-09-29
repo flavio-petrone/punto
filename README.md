@@ -9,7 +9,7 @@ Progetto personale dimostrativo di **Flavio Petrone**. Identità, persone e comm
 ![Punto — presentazione](docs/landing-desktop.jpg)
 ![Punto — workspace funzionante](public/assets/punto-overview.jpg)
 
-[Guarda il film in loop](public/assets/films/punto-film-loop-1080.mp4) · [Anteprima mobile](docs/landing-mobile.jpg)
+[Apri il sito](https://fpetrone.altervista.org/punto/) · [Guarda il film in loop](public/assets/films/punto-film-loop-1080.mp4) · [Anteprima mobile](docs/landing-mobile.jpg)
 
 ## Il percorso completo
 
@@ -61,7 +61,7 @@ php bin/setup.php --demo
 sh bin/serve.sh
 ```
 
-Il programma rifiuta database non vuoti e installazioni esistenti. Non converte automaticamente una precedente installazione SQLite. Per un’installazione senza dati demo, vedi [Installazione](docs/INSTALLAZIONE.md).
+Il programma rifiuta installazioni esistenti. Per un database condiviso è disponibile un prefisso dedicato, descritto nella guida di installazione. Non converte automaticamente una precedente installazione SQLite. Per un’installazione senza dati demo, vedi [Installazione](docs/INSTALLAZIONE.md).
 
 ## Struttura
 

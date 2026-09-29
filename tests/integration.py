@@ -44,7 +44,7 @@ class Client:
         result=json.loads(r.read());check(r.code==status,f'upload: {r.code}: {result}')
         return result
     def login_demo(self,role):self.call('state');self.call('demo',{'role':role});return self.call('state')
-def run(driver,dsn=None):
+def run(driver,dsn=None,prefix=""):
     before=checks
     with tempfile.TemporaryDirectory(prefix='punto-integration-') as temp:
         root=pathlib.Path(temp)/'app';root.mkdir()
@@ -52,9 +52,12 @@ def run(driver,dsn=None):
             shutil.copytree(ROOT/name,root/name)
         shutil.copy2(ROOT/'router.php',root/'router.php');(root/'storage').mkdir()
         env=os.environ.copy();env.update(APP_ENV='demo',ADMIN_EMAIL='test@example.test',ADMIN_NAME='Test Admin',ADMIN_PASSWORD='A-private-test-password-2026')
+        env['DB_TABLE_PREFIX']=prefix
         env['DB_DSN']=dsn or 'sqlite:'+str(root/'storage/test.sqlite')
         env['DB_USER']=os.getenv('PUNTO_TEST_MYSQL_USER','root') if dsn else ''
         env['DB_PASSWORD']=os.getenv('PUNTO_TEST_MYSQL_PASSWORD','') if dsn else ''
+        if prefix:
+            php(root,['-r', "require 'app/bootstrap.php'; Punto\\db()->exec(\"CREATE TABLE unrelated_data(value VARCHAR(50)); INSERT INTO unrelated_data VALUES ('preserve me')\");"],env)
         php(root,['bin/setup.php','--demo'],env)
         check(php(root,['bin/setup.php','--demo'],env,False).returncode!=0,'Must refuse reinstall')
         with socket.socket() as s:s.bind(('127.0.0.1',0));port=s.getsockname()[1]
@@ -149,10 +152,16 @@ def run(driver,dsn=None):
             restore=pathlib.Path(temp)/'restored';shutil.copytree(root,restore,ignore=shutil.ignore_patterns('storage','config.php'));(restore/'storage').mkdir()
             renv={**env,'DB_DSN':'sqlite:'+str(restore/'storage/restored.sqlite'),'DB_USER':'','DB_PASSWORD':''}
             php(restore,['bin/restore.php',str(backup),'--empty-database'],renv)
-            result=php(restore,['-r',"require 'app/bootstrap.php'; echo Punto\\query('SELECT COUNT(*) FROM deliverables')->fetchColumn();"],renv)
+            result=php(restore,['-r',"require 'app/bootstrap.php'; echo Punto\\query('SELECT COUNT(*) FROM {{deliverables}}')->fetchColumn();"],renv)
             check(result.stdout.strip()=='3','Restore data roundtrip')
             check(len(list((restore/'storage/uploads').iterdir()))==3,'Restore files roundtrip')
             check(php(restore,['bin/restore.php',str(backup),'--empty-database'],renv,False).returncode!=0,'Refuses destructive restore')
+            if prefix:
+                result=php(root,['-r', "require 'app/bootstrap.php'; echo Punto\\db()->query('SELECT value FROM unrelated_data')->fetchColumn();"],env)
+                check(result.stdout.strip()=='preserve me','Other applications remain untouched')
+                (root/'storage/installed').unlink()
+                check(php(root,['bin/setup.php','--demo'],env,False).returncode!=0,'Prefix collision refused even without lock')
+                (root/'storage/installed').write_text('test')
             # A production server must not expose the demo login shortcut.
             server.terminate();server.wait();env['APP_ENV']='production'
             server=subprocess.Popen(['php','-S',f'127.0.0.1:{port}','-t','public','router.php'],cwd=root,env=env,stdout=log,stderr=log)
@@ -166,5 +175,8 @@ def run(driver,dsn=None):
             server.terminate();server.wait(timeout=5);log.close()
     print(f'{driver}: {checks-before} checks passed')
 run('SQLite')
-if os.getenv('PUNTO_TEST_MYSQL_DSN'):run('MySQL/MariaDB',os.environ['PUNTO_TEST_MYSQL_DSN'])
+run('SQLite shared database',prefix='punto_')
+if os.getenv('PUNTO_TEST_MYSQL_DSN'):
+    run('MySQL/MariaDB',os.environ['PUNTO_TEST_MYSQL_DSN'])
+    run('MySQL/MariaDB shared database',os.environ['PUNTO_TEST_MYSQL_DSN'],prefix='punto_')
 print(f'Total: {checks} checks passed')

@@ -35,9 +35,62 @@ function db(): PDO
   }
   return $pdo;
 }
+const TABLES = ['schema_migrations', 'clients', 'users', 'projects', 'project_members',
+  'requests', 'tasks', 'comments', 'time_entries', 'deliverables', 'events', 'login_attempts'];
+function table_prefix(): string
+{
+  $prefix = (string) config('DB_TABLE_PREFIX', '');
+  if ($prefix !== '' && !preg_match('/^[a-z][a-z0-9_]{0,23}_$/D', $prefix)) {
+    throw new RuntimeException('Prefisso database non valido.');
+  }
+  return $prefix;
+}
+function table_name(string $name): string
+{
+  if (!in_array($name, TABLES, true)) {
+    throw new RuntimeException('Tabella non riconosciuta.');
+  }
+  return '`' . table_prefix() . $name . '`';
+}
+function sql_identifiers(string $sql): string
+{
+  // Only explicit identifiers in developer-written SQL are expanded. Values remain PDO parameters.
+  return preg_replace_callback('/\{\{([a-z_]+)\}\}/', fn($m) => table_name($m[1]), $sql);
+}
+function assert_empty_installation(): void
+{
+  $prefix = table_prefix();
+  $tables = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite'
+    ? all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+    : all('SHOW TABLES');
+  foreach ($tables as $record) {
+    if ($prefix === '' || str_starts_with((string) array_values($record)[0], $prefix)) {
+      throw new RuntimeException('Installazione già presente o prefisso occupato. Nessuna tabella modificata.');
+    }
+  }
+}
+function create_schema(): void
+{
+  assert_empty_installation();
+  $mysql = db()->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql';
+  // schema.sql also remains valid standalone SQL for a dedicated, empty database.
+  $schema = file_get_contents(ROOT . '/database/schema.sql');
+  $schema = preg_replace_callback('/\b(CREATE TABLE|REFERENCES|ON) ([a-z_]+)\b/',
+    fn($m) => $m[1] . ' ' . table_name($m[2]), $schema);
+  $schema = preg_replace_callback('/\bCREATE INDEX ([a-z_]+)\b/',
+    fn($m) => 'CREATE INDEX `' . table_prefix() . $m[1] . '`', $schema);
+  foreach (explode(';', $schema) as $statement) {
+    $statement = trim($statement);
+    if ($statement === '') continue;
+    if ($mysql && str_starts_with($statement, 'CREATE TABLE')) {
+      $statement .= ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+    }
+    db()->exec($statement);
+  }
+}
 function query(string $sql, array $params = []): \PDOStatement
 {
-  $s = db()->prepare($sql);
+  $s = db()->prepare(sql_identifiers($sql));
   $s->execute($params);
   return $s;
 }
@@ -63,7 +116,7 @@ function insert(string $table, array $data): array
   $cols = array_keys($data);
   query(
     'INSERT INTO ' .
-      $table .
+      table_name($table) .
       ' (' .
       implode(',', $cols) .
       ') VALUES (' .
@@ -223,7 +276,7 @@ function csrf(): void
 function current_user(): ?array
 {
   return isset($_SESSION['uid'])
-    ? row('SELECT id,name,email,role,client_id,active FROM users WHERE id=? AND active=1', [
+    ? row('SELECT id,name,email,role,client_id,active FROM {{users}} WHERE id=? AND active=1', [
       $_SESSION['uid'],
     ])
     : null;
@@ -255,13 +308,13 @@ function demo(): bool
 }
 function visible_projects(array $u): array
 {
-  $sql = 'SELECT p.*, c.name AS client_name FROM projects p JOIN clients c ON c.id=p.client_id';
+  $sql = 'SELECT p.*, c.name AS client_name FROM {{projects}} p JOIN {{clients}} c ON c.id=p.client_id';
   $args = [];
   if ($u['role'] === 'client') {
     $sql .= ' WHERE p.client_id=?';
     $args[] = $u['client_id'];
   } elseif ($u['role'] === 'member') {
-    $sql .= ' WHERE p.id IN (SELECT project_id FROM project_members WHERE user_id=?)';
+    $sql .= ' WHERE p.id IN (SELECT project_id FROM {{project_members}} WHERE user_id=?)';
     $args[] = $u['id'];
   }
   return all($sql . ' ORDER BY p.created_at DESC,p.id', $args);
@@ -270,7 +323,7 @@ function project(string $id): array
 {
   $u = auth();
   $p = row(
-    'SELECT p.*,c.name AS client_name FROM projects p JOIN clients c ON c.id=p.client_id WHERE p.id=?',
+    'SELECT p.*,c.name AS client_name FROM {{projects}} p JOIN {{clients}} c ON c.id=p.client_id WHERE p.id=?',
     [$id],
   );
   if (!$p) {
@@ -279,7 +332,7 @@ function project(string $id): array
   if (
     ($u['role'] === 'client' && $u['client_id'] !== $p['client_id']) ||
     ($u['role'] === 'member' &&
-      !row('SELECT user_id FROM project_members WHERE project_id=? AND user_id=?', [$id, $u['id']]))
+      !row('SELECT user_id FROM {{project_members}} WHERE project_id=? AND user_id=?', [$id, $u['id']]))
   ) {
     reject('Non hai accesso a questa commessa.', 403);
   }
@@ -294,7 +347,7 @@ function writable(array $p): void
 function lock_project(string $id, bool $mustBeActive = true): array
 {
   // A write lock serializes closing a project with task, time and delivery mutations.
-  query('UPDATE projects SET updated_at=updated_at WHERE id=?', [$id]);
+  query('UPDATE {{projects}} SET updated_at=updated_at WHERE id=?', [$id]);
   $p = project($id);
   if ($mustBeActive) {
     writable($p);
@@ -313,6 +366,7 @@ function event(string $projectId, string $verb, string $detail): void
 }
 function version_update(string $table, array $old, array $data, mixed $version): void
 {
+  $table = table_name($table);
   $v = integer($version, 1);
   $assign = implode(',', array_map(fn($key) => "$key=?", array_keys($data)));
   $s = query("UPDATE $table SET $assign,version=version+1,updated_at=? WHERE id=? AND version=?", [

@@ -13,14 +13,7 @@ if (!in_array('--empty-database', $argv, true) || empty($argv[1]) || !is_file($a
 if (is_file(ROOT . '/storage/installed')) {
   throw new \RuntimeException('Installazione esistente: ripristino rifiutato.');
 }
-$driver = db()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-$tables =
-  $driver === 'sqlite'
-    ? all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
-    : all('SHOW TABLES');
-if ($tables) {
-  throw new \RuntimeException('Il database deve essere vuoto.');
-}
+assert_empty_installation();
 $zip = new \ZipArchive();
 if ($zip->open($argv[1]) !== true) {
   throw new \RuntimeException('Archivio non valido.');
@@ -51,11 +44,7 @@ foreach ($manifest['tables']['deliverables'] as $f) {
     throw new \RuntimeException('Allegato non valido.');
   }
 }
-foreach (explode(';', file_get_contents(ROOT . '/database/schema.sql')) as $sql) {
-  if (trim($sql)) {
-    db()->exec($sql);
-  }
-}
+create_schema();
 transaction(function () use ($allowed, $manifest) {
   foreach ($allowed as $table) {
     foreach ($manifest['tables'][$table] as $r) {
@@ -66,7 +55,7 @@ transaction(function () use ($allowed, $manifest) {
       }
       query(
         'INSERT INTO ' .
-          $table .
+          table_name($table) .
           ' (' .
           implode(',', array_keys($r)) .
           ') VALUES (' .
